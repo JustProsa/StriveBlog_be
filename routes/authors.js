@@ -2,8 +2,46 @@ const express = require("express");
 const authors = express.Router();
 const logger = require("../middlewares/logger");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+const crypto = require("crypto");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+require("dotenv").config();
 
 const AuthorModel = require("../models/author");
+
+// configurazione cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const cloudStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "avatarsfolder", //nome della cartella su cloudinary
+    format: async (req, file) => "png", //formato del file
+    public_id: (req, file) => file.name,
+  },
+});
+
+const internalStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    //posizione in cui salvare i file
+    cb(null, "avatars");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${crypto.randomUUID()}`;
+    // estensione dello stesso file
+    const fileExtension = file.originalname.split(".").pop();
+    // eseguiamo la callback con il titolo completo
+    cb(null, `${uniqueSuffix}.${fileExtension}`);
+  },
+});
+
+const upload = multer({ storage: internalStorage });
+const cloudUpload = multer({ storage: cloudStorage });
 
 authors.get("/authors", logger, async (req, res) => {
   const { page = 1, pageSize = 3 } = req.query;
@@ -39,6 +77,34 @@ authors.get("/authors/:id", async (req, res) => {
     res
       .status(500)
       .send({ statusCode: 500, message: `Internal server error: ${error}` });
+  }
+});
+
+authors.post(
+  "/authors/cloudUpload",
+  cloudUpload.single("avatar"),
+  async (req, res) => {
+    try {
+      res.status(200).json({ avatar: req.file.path });
+    } catch (error) {
+      res
+        .status(500)
+        .send({ statusCode: 500, message: "Errore interno del server" });
+    }
+  }
+);
+
+authors.post("/authors/upload", upload.single("cover"), async (req, res) => {
+  // ci serve l'indirizzo del nostro server
+  const url = `${req.protocol}://${req.get("host")}`;
+
+  try {
+    const imgUrl = req.file.filename; //il nostro file sarà in req.file perché arriva dal frontend
+    res.status(200).json({ img: `${url}/uploads/${imgUrl}` });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ statusCode: 500, message: "Errore interno del server" });
   }
 });
 
