@@ -94,13 +94,13 @@ authors.post(
   }
 );
 
-authors.post("/authors/upload", upload.single("cover"), async (req, res) => {
+authors.post("/authors/upload", upload.single("avatar"), async (req, res) => {
   // ci serve l'indirizzo del nostro server
   const url = `${req.protocol}://${req.get("host")}`;
 
   try {
     const imgUrl = req.file.filename; //il nostro file sarà in req.file perché arriva dal frontend
-    res.status(200).json({ img: `${url}/uploads/${imgUrl}` });
+    res.status(200).json({ img: `${url}/avatars/${imgUrl}` });
   } catch (error) {
     res
       .status(500)
@@ -108,7 +108,7 @@ authors.post("/authors/upload", upload.single("cover"), async (req, res) => {
   }
 });
 
-authors.post("/authors/create", async (req, res) => {
+authors.post("/authors", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
   const newAuthor = new AuthorModel({

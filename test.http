@@ -1,4 +1,4 @@
-GET http://localhost:54321/authors
+GET http://localhost:54321/posts
 
 ####
 
