@@ -1,0 +1,76 @@
+GET http://localhost:54321/authors
+
+####
+
+POST http://localhost:54321/authors/create
+Content-Type: application/json
+
+{
+    "firstName": "Nome prova login",
+    "lastName": "Cognome prova",
+    "email": "email@email.com",
+    "birthDay": "17/02/1998",
+    "avatar": "https://c8.alamy.com/compfr/2bd9h00/illustration-de-l-avatar-business-man-2bd9h00.jpg",
+    "password": "WeilaBella"
+}
+
+####
+
+POST http://localhost:54321/posts/create 
+Content-Type: application/json
+
+{
+    "title": "Titolo13",
+    "category": "Categoria",
+    "cover": "#",
+    "readTime": {
+        "value": 15,
+        "timeUnit": "min"
+    },
+    "author": {
+        "name": "652fe377d2ce6afcfc6f5cb3",
+        "avatar": "#"
+    }
+}
+
+####
+
+PATCH http://localhost:54321/posts/update/652feb0467cc957cbfa13ea5
+Content-Type: application/json
+
+{
+    "title": "Titolo1",
+    "category": "Categoria modificata",
+    "cover": "#",
+    "readTime": {
+        "value": 10,
+        "timeUnit": "min"
+    },
+    "author": {
+        "name": "Pieppiolo",
+        "avatar": "#"
+    }
+}
+
+####
+
+GET http://localhost:54321/posts?pageSize=4&page=1
+
+####
+
+POST http://localhost:54321/posts/65368a3b95f241381ee5a829/comments/create
+Content-Type: application/json
+
+{
+    "post": "6536877795f241381ee5a80d",
+    "author": "652fe38cd2ce6afcfc6f5cb5",
+    "text": "Davvero bello!"
+}
+
+####
+
+GET http://localhost:54321/posts/6536877795f241381ee5a80d/comments
+
+####
+
+DELETE http://localhost:54321/posts/6536877795f241381ee5a80d/comments/6536a77cd0c773ab7c6c1d13
